@@ -1,9 +1,10 @@
-var bytewise = require('bytewise');
 var create = require('level-create');
 var batch = require('level-create-batch');
-var isarray = require('isarray');
-
 var sublevel = require('level-sublevel');
+
+var bytewise = require('bytewise');
+var isarray = require('isarray');
+var through = require('through2');
 
 module.exports = Account;
 
@@ -63,10 +64,20 @@ Account.prototype.remove = function (id, cb) {
 };
 
 Account.prototype.list = function () {
-    return this._db.createKeyStream({
-        gt: [ 'account', null ],
-        lt: [ 'account', undefined ]
+    var ks = this._db.createKeyStream({
+        keyEncoding: 'binary',
+        gt: bytewise.encode([ 'account', null ]),
+        lt: bytewise.encode([ 'account', undefined ])
     });
+    return ks.pipe(through.obj(function (bkey, enc, next) {
+        var key = Buffer.concat([ Buffer([0xa0]), bkey.slice(1) ]);
+        var dkey = bytewise.decode(key)
+        if (!isarray(dkey) || dkey[0] !== 'account') {
+            this.emit('error', new Error('unexpected decoded key: ' + dkey));
+        }
+        else this.push(dkey[1]);
+        next();
+    }));
 };
 
 Account.prototype.addLogin = function (id, type, creds, cb) {
