@@ -5,6 +5,7 @@ var sublevel = require('level-sublevel');
 var bytewise = require('bytewise');
 var isarray = require('isarray');
 var through = require('through2');
+var defined = require('defined');
 
 module.exports = Account;
 
@@ -71,15 +72,28 @@ Account.prototype.list = function (opts) {
     var lt = defined(opts.lt, opts.end, undefined);
     // todo: gte, lte
     
-    var ks = this._db.createKeyStream({
+    var dopts = {
         keyEncoding: 'binary',
         gt: bytewise.encode([ 'account', gt ]),
-        lt: bytewise.encode([ 'account', lt ])
-    });
-    return ks.pipe(through.obj(function (bkey, enc, next) {
-        var key = decode(this, bkey);
-        if (opts.lines) this.push(key + '\n')
-        else this.push(key);
+        lt: bytewise.encode([ 'account', lt ]),
+        keys: defined(opts.keys, true),
+        values: defined(opts.values, true)
+    };
+    var s = this._db.createReadStream(dopts)
+    
+    return s.pipe(through.obj(function (row, enc, next) {
+        if (dopts.keys && !dopts.values) {
+            this.push(decode(this, row));
+        }
+        else if (!dopts.keys && dopts.values) {
+            this.push(row);
+        }
+        else {
+            this.push({
+                key: decode(this, row.key),
+                value: row.value
+            });
+        }
         next();
     }));
     
