@@ -1,12 +1,15 @@
 var accountdown = require('../');
 var level = require('level');
-var bytewise = require('bytewise');
+var db = level('/tmp/users.db');
 
-var accounts = accountdown(level('/tmp/accountdown.db'), {
-    keyEncoding: bytewise,
-    valueEncoding: 'json'
+var users = accountdown(db, {
+    login: { basic: require('accountdown-basic')() }
 });
 
-accounts.create('substack', {}, function (s) {
-    s.addLogin('basic', { username: 'substack', password: 'beep' });
+var opts = {
+    login: { basic: { username: 'substack', password: 'beep boop' } },
+    value: { bio: 'beep boop' }
+};
+users.create('substack', opts, function (err) {
+    if (err) console.error(err);
 });
