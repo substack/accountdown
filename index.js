@@ -50,13 +50,7 @@ Account.prototype.create = function (id, opts, cb) {
         if (!xrows) return nextErr(cb, 'login did not return any rows');
         if (!isarray(xrows)) return nextErr(cb, xrows);
         
-        for (var j = 0; j < xrows.length; j++) {
-            var row = xrows[j];
-            rows.push({
-                key: [ 'login', key ].concat(row.key),
-                value: row.value
-            });
-        }
+        rows.push.apply(rows, xrows);
     }
     batch(this._db, rows, function (err) {
         if (err && cb) cb(err);
