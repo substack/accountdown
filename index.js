@@ -9,17 +9,24 @@ var through = require('through2');
 module.exports = Account;
 
 function Account (db, opts) {
-    if (!opts) opts = {};
+    var self = this;
     if (!(this instanceof Account)) return new Account(db, opts);
+    if (!opts) opts = {};
+    
     this._db = sublevel(db).sublevel('account', {
         keyEncoding: bytewise,
         valueEncoding: opts.valueEncoding || 'json'
     });
+    
     this._logins = opts.login || {};
+    Object.keys(opts.login || {}).forEach(function (key) {
+        var lg = opts.login[key];
+        self._logins[key] = lg(self._db, [ 'login', key ]);
+    });
 }
 
-Account.prototype.register = function (name, lg) {
-    this._logins[name] = lg;
+Account.prototype.register = function (type, lg) {
+    this._logins[name] = lg(this._db, [ 'login', type ]);
 };
 
 Account.prototype.create = function (id, opts, cb) {
@@ -35,6 +42,7 @@ Account.prototype.create = function (id, opts, cb) {
     for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
         var lg = this._logins[key];
+        
         var creds = opts.login[key];
         if (!lg) return nextErr(cb, 'login not registered for type: ' + key);
         
@@ -105,7 +113,7 @@ Account.prototype.addLogin = function (id, type, creds, cb) {
 Account.prototype.verify = function (type, creds, cb) {
     var lg = this._logins[type];
     if (!lg) return nextErr(cb, 'No login registered for type: ' + type);
-    lg.verify(this._db, [ 'login', type ], creds, cb);
+    lg.verify(creds, cb);
 };
 
 function nextErr (cb, msg) {
