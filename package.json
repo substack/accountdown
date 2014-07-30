@@ -1,0 +1,39 @@
+{
+  "name": "accountdown",
+  "version": "1.0.0",
+  "description": "persistent accounts backed to leveldb",
+  "main": "index.js",
+  "dependencies": {
+    "bytewise": "~0.7.0",
+    "defined": "~0.0.0",
+    "isarray": "~0.0.1",
+    "level-create-batch": "~1.0.1",
+    "level-sublevel": "~6.2.0",
+    "through2": "~0.5.1"
+  },
+  "devDependencies": {
+    "tape": "^2.13.2",
+    "level-test": "~1.6.3",
+    "accountdown-basic": "^1.0.0"
+  },
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/substack/accountdown.git"
+  },
+  "homepage": "https://github.com/substack/accountdown",
+  "keywords": [
+    "level",
+    "user",
+    "account",
+    "database"
+  ],
+  "author": {
+    "name": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net"
+  },
+  "license": "MIT"
+}
