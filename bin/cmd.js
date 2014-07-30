@@ -2,42 +2,39 @@
 
 var accountdown = require('../');
 var level = require('level');
-var bytewise = require('bytewise');
 var minimist = require('minimist');
 var through = require('through2');
 
 var argv = minimist(process.argv.slice(2));
 
-var accounts = accountdown(level('/tmp/accountdown.db'), {
-    keyEncoding: bytewise,
+var accounts = accountdown(level('/tmp/users.db'), {
+    keyEncoding: 'buffer',
     valueEncoding: 'json'
 });
 
 var cmd = argv._[0];
 if (cmd === 'create') {
-    accounts.create(argv._[1], {});
+    accounts.create(argv._[1], {}, function (err, row) {
+        if (err) exit(err, 2)
+    });
 }
 else if (cmd === 'remove' || cmd === 'rm') {
-    var user = argv._[0];
+    var user = argv._[1];
     accounts.remove(user, function (err) {
         if (err) exit(err, 2)
     });
 }
-else if (cmd === 'add') {
-    var user = argv._[0], type = argv._[1], pw = argv._[2];
-    
-    accounts.get(user, function (err, u) {
-        if (err) exit(err, 2)
-        else u.addLogin(type, { username: user, password: pw });
+else if (cmd === 'addlogin') {
+    var id = argv._[1], type = argv._[2], pw = argv._[3];
+    var creds = { username: id, password: pw };
+    accounts.addLogin(id, type, creds, function (err) {
+        if (err) exit(err, 2);
     });
 }
 else if (cmd === 'list') {
-    var s = accounts.list();
+    var s = accounts.list({ lines: true });
     s.on('error', function (err) { exit(err, 2) });
-    s.pipe(through(function (name, enc, next) {
-        console.log(name);
-        next();
-    }));
+    s.pipe(process.stdout);
 }
 else if (cmd === 'verify') {
     var type = argv._[0], user = argv._[1], pw = argv._[2];

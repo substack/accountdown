@@ -63,21 +63,32 @@ Account.prototype.remove = function (id, cb) {
     this._db.del([ 'account', id ], cb);
 };
 
-Account.prototype.list = function () {
+Account.prototype.list = function (opts) {
+    if (!opts) opts = {};
+    var gt = opts.gt === undefined ? null : opts.gt;
+    var lt = opts.lt === undefined ? undefined : opts.lt;
+    // todo: more range options
+    
     var ks = this._db.createKeyStream({
         keyEncoding: 'binary',
-        gt: bytewise.encode([ 'account', null ]),
-        lt: bytewise.encode([ 'account', undefined ])
+        gt: bytewise.encode([ 'account', gt ]),
+        lt: bytewise.encode([ 'account', lt ])
     });
     return ks.pipe(through.obj(function (bkey, enc, next) {
+        var key = decode(this, bkey);
+        if (opts.lines) this.push(key + '\n')
+        else this.push(key);
+        next();
+    }));
+    
+    function decode (stream, bkey) {
         var key = Buffer.concat([ Buffer([0xa0]), bkey.slice(1) ]);
         var dkey = bytewise.decode(key)
         if (!isarray(dkey) || dkey[0] !== 'account') {
-            this.emit('error', new Error('unexpected decoded key: ' + dkey));
+            stream.emit('error', new Error('unexpected decoded key: ' + dkey));
         }
-        else this.push(dkey[1]);
-        next();
-    }));
+        return dkey[1];
+    }
 };
 
 Account.prototype.addLogin = function (id, type, creds, cb) {
