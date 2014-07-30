@@ -67,9 +67,9 @@ Account.prototype.remove = function (id, cb) {
 
 Account.prototype.list = function (opts) {
     if (!opts) opts = {};
-    var gt = opts.gt === undefined ? null : opts.gt;
-    var lt = opts.lt === undefined ? undefined : opts.lt;
-    // todo: more range options
+    var gt = defined(opts.gt, opts.start, null);
+    var lt = defined(opts.lt, opts.end, undefined);
+    // todo: gte, lte
     
     var ks = this._db.createKeyStream({
         keyEncoding: 'binary',
