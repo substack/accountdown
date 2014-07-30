@@ -1,4 +1,3 @@
-var create = require('level-create');
 var batch = require('level-create-batch');
 var sublevel = require('level-sublevel');
 
@@ -53,13 +52,15 @@ Account.prototype.create = function (id, opts, cb) {
         
         rows.push.apply(rows, xrows);
     }
-    batch(this._db, rows, function (err) {
-        if (err && cb) cb(err);
-    });
+    batch(this._db, rows, function (err) { if (cb) cb(err) });
 };
 
 Account.prototype.get = function (id, cb) {
     this._db.get([ 'account', id ], cb);
+};
+
+Account.prototype.put = function (id, value, cb) {
+    this._db.put([ 'account', id ], value, cb);
 };
 
 Account.prototype.remove = function (id, cb) {
