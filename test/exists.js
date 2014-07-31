@@ -1,7 +1,7 @@
 var accountdown = require('../');
 var test = require('tape');
 var level = require('level-test')();
-var db = level('exists');
+var db = level('exists-' + Math.random());
 
 test('exists', function (t) {
     t.plan(5);

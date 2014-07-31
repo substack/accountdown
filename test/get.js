@@ -1,7 +1,7 @@
 var accountdown = require('../');
 var test = require('tape');
 var level = require('level-test')();
-var db = level('get');
+var db = level('get-' + Math.random());
 
 test('get', function (t) {
     t.plan(3);

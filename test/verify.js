@@ -2,7 +2,7 @@ var accountdown = require('../');
 var test = require('tape');
 var level = require('level-test')();
 var through = require('through2');
-var db = level('exists');
+var db = level('verify-' + Math.random());
 
 var params = {
     substack: {
