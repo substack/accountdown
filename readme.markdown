@@ -2,6 +2,8 @@
 
 manage accounts with leveldb
 
+[![build status](https://secure.travis-ci.org/substack/accountdown.png)](http://travis-ci.org/substack/accountdown)
+
 # example
 
 ## create
