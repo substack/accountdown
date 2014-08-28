@@ -1,5 +1,5 @@
 var batch = require('level-create-batch');
-var sublevel = require('level-sublevel');
+var sublevel = require('level-sublevel/bytewise');
 
 var bytewise = require('bytewise');
 var isarray = require('isarray');
@@ -74,38 +74,28 @@ Account.prototype.list = function (opts) {
     // todo: gte, lte
     
     var dopts = {
-        keyEncoding: 'binary',
-        gt: bytewise.encode([ 'account', gt ]),
-        lt: bytewise.encode([ 'account', lt ]),
+        gt: [ 'account', gt ],
+        lt: [ 'account', lt ],
         keys: defined(opts.keys, true),
         values: defined(opts.values, true)
     };
-    var s = this._db.createReadStream(dopts)
+    var s = this._db.createReadStream(dopts);
     
     return s.pipe(through.obj(function (row, enc, next) {
         if (dopts.keys && !dopts.values) {
-            this.push(decode(this, row));
+            this.push(row.key[1]);
         }
         else if (!dopts.keys && dopts.values) {
             this.push(row);
         }
         else {
             this.push({
-                key: decode(this, row.key),
+                key: row.key[1],
                 value: row.value
             });
         }
         next();
     }));
-    
-    function decode (stream, bkey) {
-        var key = Buffer.concat([ Buffer([0xa0]), bkey.slice(1) ]);
-        var dkey = bytewise.decode(key)
-        if (!isarray(dkey) || dkey[0] !== 'account') {
-            stream.emit('error', new Error('unexpected decoded key: ' + dkey));
-        }
-        return dkey[1];
-    }
 };
 
 Account.prototype.addLogin = function (id, type, creds, cb) {
