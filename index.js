@@ -21,12 +21,15 @@ function Account (db, opts) {
     this._logins = opts.login || {};
     Object.keys(opts.login || {}).forEach(function (key) {
         var lg = opts.login[key];
-        self._logins[key] = lg(self._db, [ 'login', key ]);
+        self._logins[key] = lg(self._db, {
+            data: function (x) { return [ 'login', key ].concat(x) },
+            id: function (x) { return [ 'login-id' ].concat(x).concat(key) }
+        });
     });
 }
 
 Account.prototype.register = function (type, lg) {
-    this._logins[name] = lg(this._db, [ 'login', type ]);
+    this._logins[type] = lg(this._db, [ 'login', type ]);
 };
 
 Account.prototype.create = function (id, opts, cb) {
@@ -108,8 +111,18 @@ Account.prototype.addLogin = function (id, type, creds, cb) {
     if (!isarray(xrows)) return nextErr(cb, xrows);
     batch(this._db, xrows, function (err) {
         if (err && cb) cb(err)
-        else cb(null)
+        else if (cb) cb(null)
     });
+};
+
+Account.prototype.listLogin = function (id, cb) {
+    var lg = this._logins[type];
+    if (!lg) return nextErr(cb, 'No login registered for type: ' + type);
+    var s = this._db.createReadStream({
+        gt: [ 'login-id', id, null ],
+        lt: [ 'login-id', id, undefined ]
+    });
+    return s;
 };
 
 Account.prototype.verify = function (type, creds, cb) {
