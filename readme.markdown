@@ -106,6 +106,12 @@ Remote an account by `id`. `cb(err)` fires with any errors.
 
 Register a login `plugin` at a string name `type`.
 
+## users.addLogin(id, type, creds, cb)
+
+Add a login for `id` of `type` using the credentials `creds`.
+
+`cb(err)` fires with any errors.
+
 # login plugins
 
 Login plugins such as
