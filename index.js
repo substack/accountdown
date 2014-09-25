@@ -107,7 +107,8 @@ Account.prototype.addLogin = function (id, type, creds, cb) {
     if (!xrows) return nextErr(cb, 'login did not return any rows');
     if (!isarray(xrows)) return nextErr(cb, xrows);
     batch(this._db, xrows, function (err) {
-        if (err && cb) cb(err);
+        if (err && cb) cb(err)
+        else cb(null)
     });
 };
 
