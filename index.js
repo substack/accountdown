@@ -52,7 +52,16 @@ Account.prototype.create = function (id, opts, cb) {
         if (!isarray(xrows)) return nextErr(cb, xrows);
         
         rows.push.apply(rows, xrows);
-        rows.push({ key: [ 'login-id', id, key ], value: 0 });
+        rows.push({
+            key: [ 'login-id', id, key ],
+            value: 0
+        });
+        for (var i = 0; i < xrows.length; i++) {
+            rows.push({
+                key: [ 'login-data', id, key ].concat(xrows[i].key),
+                value: 0
+            });
+        }
     }
     batch(this._db, rows, function (err) { if (cb) cb(err) });
 };
@@ -127,6 +136,29 @@ Account.prototype.listLogin = function (id, cb) {
         next();
     });
     return readonly(s.pipe(tr));
+};
+
+Account.prototype.removeLogin = function (id, type, cb) {
+    var self = this;
+    var rows = [];
+    rows.push({
+        type: 'del',
+        key: [ 'login-id', id, type ]
+    });
+    var s = this._db.createReadStream({
+        gt: [ 'login-data', id, null ],
+        lt: [ 'login-data', id, undefined ]
+    });
+    return readonly(s.pipe(through.obj(write, end)));
+    
+    function write (row, enc, next) {
+        rows.push({ type: 'del', key: row.key.slice(3) });
+        rows.push({ type: 'del', key: row.key });
+        next();
+    }
+    function end () {
+        self._db.batch(rows, cb);
+    }
 };
 
 Account.prototype.verify = function (type, creds, cb) {
