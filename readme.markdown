@@ -122,6 +122,12 @@ login type present for the user at `id`. For example:
 { key: 'rsa' }
 ```
 
+## users.removeLogin(id, type, cb)
+
+Remove a login for `id` by its `type`.
+
+`cb(err)` fires with any errors.
+
 # login plugins
 
 Login plugins such as
