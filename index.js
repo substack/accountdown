@@ -22,10 +22,7 @@ function Account (db, opts) {
     this._logins = opts.login || {};
     Object.keys(opts.login || {}).forEach(function (key) {
         var lg = opts.login[key];
-        self._logins[key] = lg(self._db, {
-            data: function (x) { return [ 'login', key ].concat(x) },
-            id: function (x) { return [ 'login-id' ].concat(x).concat(key) }
-        });
+        self._logins[key] = lg(self._db, [ 'login', key ]);
     });
 }
 
@@ -55,6 +52,7 @@ Account.prototype.create = function (id, opts, cb) {
         if (!isarray(xrows)) return nextErr(cb, xrows);
         
         rows.push.apply(rows, xrows);
+        rows.push({ key: [ 'login-id', id, key ], value: 0 });
     }
     batch(this._db, rows, function (err) { if (cb) cb(err) });
 };
@@ -110,6 +108,9 @@ Account.prototype.addLogin = function (id, type, creds, cb) {
     var xrows = lg.create(id, creds);
     if (!xrows) return nextErr(cb, 'login did not return any rows');
     if (!isarray(xrows)) return nextErr(cb, xrows);
+    
+    xrows.push({ key: [ 'login-id', id, type ], value: 0 });
+    
     batch(this._db, xrows, function (err) {
         if (err && cb) cb(err)
         else if (cb) cb(null)
@@ -122,7 +123,7 @@ Account.prototype.listLogin = function (id, cb) {
         lt: [ 'login-id', id, undefined ]
     });
     var tr = through.obj(function (row, enc, next) {
-        this.push(row.key.slice(2));
+        this.push(row.key[2]);
         next();
     });
     return readonly(s.pipe(tr));
