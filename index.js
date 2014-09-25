@@ -123,7 +123,7 @@ Account.prototype.listLogin = function (id, cb) {
         lt: [ 'login-id', id, undefined ]
     });
     var tr = through.obj(function (row, enc, next) {
-        this.push(row.key[2]);
+        this.push({ key: row.key[2] });
         next();
     });
     return readonly(s.pipe(tr));

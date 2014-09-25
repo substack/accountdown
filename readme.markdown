@@ -112,6 +112,16 @@ Add a login for `id` of `type` using the credentials `creds`.
 
 `cb(err)` fires with any errors.
 
+## var s = users.listLogin(id)
+
+Return a readable object stream `s` of rows with `row.key` set to each string
+login type present for the user at `id`. For example:
+
+```
+{ key: 'basic' }
+{ key: 'rsa' }
+```
+
 # login plugins
 
 Login plugins such as
