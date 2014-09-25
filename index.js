@@ -76,8 +76,46 @@ Account.prototype.put = function (id, value, cb) {
 };
 
 Account.prototype.remove = function (id, cb) {
-    // TODO: batch delete all login data for the given id
-    this._db.del([ 'account', id ], cb);
+    var self = this;
+    var rows = [], pending = 2;
+    rows.push({
+        type: 'del',
+        key: [ 'account', id ]
+    });
+    var st = this._db.createReadStream({
+        gt: [ 'login-id', id, null ],
+        lt: [ 'login-id', id, undefined ]
+    });
+    st.on('error', onerror);
+    st.pipe(through.obj(swrite, end));
+    
+    var s = this._db.createReadStream({
+        gt: [ 'login-data', id, null ],
+        lt: [ 'login-data', id, undefined ]
+    });
+    s.on('error', onerror);
+    s.pipe(through.obj(write, end));
+    
+    function write (row, enc, next) {
+        rows.push({ type: 'del', key: row.key.slice(3) });
+        rows.push({ type: 'del', key: row.key });
+        next();
+    }
+    
+    function swrite (row, enc, next) {
+        rows.push({ type: 'del', key: row.key });
+        next();
+    }
+    
+    function end () {
+        if (--pending !== 0) return;
+        self._db.batch(rows, cb);
+    }
+    function onerror (err) {
+        var f = cb;
+        cb = function () {};
+        f(err);
+    }
 };
 
 Account.prototype.list = function (opts) {
