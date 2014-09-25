@@ -71,8 +71,12 @@ Account.prototype.get = function (id, cb) {
 };
 
 Account.prototype.put = function (id, value, cb) {
-    // TODO: refuse to create new entries, should use create() for that
-    this._db.put([ 'account', id ], value, cb);
+    var db = this._db;
+    this.get(id, function (err, v) {
+        // refuse to create new entries, use create() for that
+        if (err) return cb(err);
+        db.put([ 'account', id ], value, cb);
+    });
 };
 
 Account.prototype.remove = function (id, cb) {
