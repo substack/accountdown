@@ -7,7 +7,8 @@ var users = accountdown(db, {
 });
 
 var creds = { username: 'substack', password: 'beep boop' };
-users.verify('basic', creds, function (err, ok) {
-    if (err) console.error(err)
-    else console.log('verified:', ok)
+users.verify('basic', creds, function (err, id) {
+    if (err) return console.error(err);
+    console.log('ok=', ok);
+    console.log('id=', id);
 });

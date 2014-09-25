@@ -13,7 +13,7 @@ To create a user, we can just do:
 ``` js
 var accountdown = require('accountdown');
 var level = require('level');
-var db = level('/tmp/users.db');
+var db = level('./users.db');
 
 var users = accountdown(db, {
     login: { basic: require('accountdown-basic') }
@@ -23,8 +23,10 @@ var opts = {
     login: { basic: { username: 'substack', password: 'beep boop' } },
     value: { bio: 'beep boop' }
 };
-users.create('substack', opts, function (err) {
-    if (err) console.error(err);
+users.create('substack', opts, function (err, ok, id) {
+    if (err) return console.error(err);
+    console.log('ok=', ok);
+    console.log('id=', id);
 });
 ```
 
@@ -41,16 +43,17 @@ To verify a credential:
 ``` js
 var accountdown = require('accountdown');
 var level = require('level');
-var db = level('/tmp/users.db');
+var db = level('./users.db');
 
 var users = accountdown(db, {
     login: { basic: require('accountdown-basic') }
 });
 
 var creds = { username: 'substack', password: 'beep boop' };
-users.verify('basic', creds, function (err, ok) {
-    if (err) console.error(err)
-    else console.log('verified:', ok)
+users.verify('basic', creds, function (err, ok, id) {
+    if (err) return console.error(err)
+    console.log('ok=', ok);
+    console.log('id=', id);
 });
 ```
 
@@ -74,17 +77,30 @@ some options `opts`.
 
 Create a user by an `id`.
 
-## users.verify()
+## users.verify(type, creds, cb)
+
+Challenge credentials `creds` for a login `type`.
+
+`cb(err, ok, id)` fires with an error or the boolean verify status `ok` - true
+for challenge success and false for challenge failure. On success, the `id`
+associated with challenge credentials, `cred` is defined.
 
 ## users.list()
 
+Return a readable object stream of row objects with `row.key` set to the user id
+of each user in the account system.
+
 ## users.get(id, cb)
 
-Get the data for a username
+Get the value for a username by `id` as `cb(err, value)`.
 
-## users.put(id, cb)
+## users.put(id, value, cb)
+
+Put a `value` for a username `id`. `cb(err)` fires with any errors.
 
 ## users.remove(id, cb)
+
+Remote an account by `id`. `cb(err)` fires with any errors.
 
 ## users.register(type, plugin)
 
@@ -123,3 +139,14 @@ Return an array of rows to batch insert if and only if all the keys do not
 already exist using
 [level-create-batch](https://npmjs.org/package/level-create-batch).
 
+# install
+
+With [npm](https://npmjs.org) do:
+
+```
+npm install accountdown
+```
+
+# license
+
+MIT

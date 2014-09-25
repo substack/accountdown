@@ -60,10 +60,12 @@ Account.prototype.get = function (id, cb) {
 };
 
 Account.prototype.put = function (id, value, cb) {
+    // TODO: refuse to create new entries, should use create() for that
     this._db.put([ 'account', id ], value, cb);
 };
 
 Account.prototype.remove = function (id, cb) {
+    // TODO: batch delete all login data for the given id
     this._db.del([ 'account', id ], cb);
 };
 
