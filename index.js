@@ -5,6 +5,7 @@ var bytewise = require('bytewise');
 var isarray = require('isarray');
 var through = require('through2');
 var defined = require('defined');
+var readonly = require('read-only-stream');
 
 module.exports = Account;
 
@@ -116,13 +117,15 @@ Account.prototype.addLogin = function (id, type, creds, cb) {
 };
 
 Account.prototype.listLogin = function (id, cb) {
-    var lg = this._logins[type];
-    if (!lg) return nextErr(cb, 'No login registered for type: ' + type);
     var s = this._db.createReadStream({
         gt: [ 'login-id', id, null ],
         lt: [ 'login-id', id, undefined ]
     });
-    return s;
+    var tr = through.obj(function (row, enc, next) {
+        this.push(row.key.slice(2));
+        next();
+    });
+    return readonly(s.pipe(tr));
 };
 
 Account.prototype.verify = function (type, creds, cb) {

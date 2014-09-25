@@ -9,6 +9,7 @@
     "isarray": "~0.0.1",
     "level-create-batch": "^1.0.1",
     "level-sublevel": "^6.3.4",
+    "read-only-stream": "^1.1.1",
     "through2": "^1.0.0"
   },
   "devDependencies": {
