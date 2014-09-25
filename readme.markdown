@@ -96,11 +96,15 @@ Get the value for a username by `id` as `cb(err, value)`.
 
 ## users.put(id, value, cb)
 
-Put a `value` for a username `id`. `cb(err)` fires with any errors.
+Put a `value` for a username `id`. The username `id` must already exist.
+
+`cb(err)` fires with any errors.
 
 ## users.remove(id, cb)
 
-Remote an account by `id`. `cb(err)` fires with any errors.
+Remote an account by `id`, including all login information for that user id.
+
+`cb(err)` fires with any errors.
 
 ## users.register(type, plugin)
 
