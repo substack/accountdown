@@ -191,7 +191,7 @@ Account.prototype.removeLogin = function (id, type, cb) {
         gt: [ 'login-data', id, null ],
         lt: [ 'login-data', id, undefined ]
     });
-    return readonly(s.pipe(through.obj(write, end)));
+    s.pipe(through.obj(write, end));
     
     function write (row, enc, next) {
         rows.push({ type: 'del', key: row.key.slice(3) });
