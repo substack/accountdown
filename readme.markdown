@@ -23,10 +23,8 @@ var opts = {
     login: { basic: { username: 'substack', password: 'beep boop' } },
     value: { bio: 'beep boop' }
 };
-users.create('substack', opts, function (err, ok, id) {
+users.create('substack', opts, function (err) {
     if (err) return console.error(err);
-    console.log('ok=', ok);
-    console.log('id=', id);
 });
 ```
 
@@ -38,7 +36,7 @@ likewise if an `id` is unavailable but a username is available.
 
 ## verify
 
-To verify a credential:
+To verify a credential (in this case, using accountdown-basic):
 
 ``` js
 var accountdown = require('accountdown');
