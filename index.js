@@ -1,5 +1,5 @@
 var batch = require('level-create-batch');
-var sublevel = require('level-sublevel/bytewise');
+var sublevel = require('subleveldown');
 
 var bytewise = require('bytewise');
 var isarray = require('isarray');
@@ -14,7 +14,7 @@ function Account (db, opts) {
     if (!(this instanceof Account)) return new Account(db, opts);
     if (!opts) opts = {};
     
-    this._db = sublevel(db).sublevel('account', {
+    this._db = sublevel(db, '', {
         keyEncoding: bytewise,
         valueEncoding: opts.valueEncoding || 'json'
     });
