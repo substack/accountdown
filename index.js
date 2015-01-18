@@ -56,9 +56,9 @@ Account.prototype.create = function (id, opts, cb) {
             key: [ 'login-id', id, key ],
             value: 0
         });
-        for (var i = 0; i < xrows.length; i++) {
+        for (var j = 0; j < xrows.length; j++) {
             rows.push({
-                key: [ 'login-data', id, key ].concat(xrows[i].key),
+                key: [ 'login-data', id, key ].concat(xrows[j].key),
                 value: 0
             });
         }
