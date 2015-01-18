@@ -1,6 +1,6 @@
 {
   "name": "accountdown",
-  "version": "3.0.1",
+  "version": "4.0.0",
   "description": "persistent accounts backed to leveldb",
   "main": "index.js",
   "dependencies": {
