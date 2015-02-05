@@ -160,9 +160,15 @@ Account.prototype.addLogin = function (id, type, creds, cb) {
     if (!xrows) return nextErr(cb, 'login did not return any rows');
     if (!isarray(xrows)) return nextErr(cb, xrows);
     
-    xrows.push({ key: [ 'login-id', id, type ], value: 0 });
-    
-    batch(this._db, xrows, function (err) {
+    var rows = xrows.slice();
+    rows.push({ key: [ 'login-id', id, type ], value: 0 });
+    for (var j = 0; j < xrows.length; j++) {
+        rows.push({
+            key: [ 'login-data', id, type ].concat(xrows[j].key),
+            value: 0
+        });
+    }
+    batch(this._db, rows, function (err) {
         if (err && cb) cb(err)
         else if (cb) cb(null)
     });
