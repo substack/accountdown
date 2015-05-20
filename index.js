@@ -47,7 +47,7 @@ Account.prototype.create = function (id, opts, cb) {
         var creds = opts.login[key];
         if (!lg) return nextErr(cb, 'login not registered for type: ' + key);
         
-        var xrows = lg.create(id, creds);
+        var xrows = lg.create(id, creds, opts);
         if (!xrows) return nextErr(cb, 'login did not return any rows');
         if (!isarray(xrows)) return nextErr(cb, xrows);
         
