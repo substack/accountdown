@@ -32,7 +32,6 @@ Account.prototype.register = function (type, lg) {
 
 Account.prototype.create = function (id, opts, cb) {
     if (!opts) opts = {};
-    var rows = [];
     var value = opts.value === undefined ? {} : opts.value;
     
     var rows = [
