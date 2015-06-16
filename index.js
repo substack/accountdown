@@ -6,6 +6,7 @@ var isarray = require('isarray');
 var through = require('through2');
 var defined = require('defined');
 var readonly = require('read-only-stream');
+var each = require('each-async');
 
 module.exports = Account;
 
@@ -32,7 +33,6 @@ Account.prototype.register = function (type, lg) {
 
 Account.prototype.create = function (id, opts, cb) {
     if (!opts) opts = {};
-    var rows = [];
     var value = opts.value === undefined ? {} : opts.value;
     
     var rows = [
@@ -64,6 +64,30 @@ Account.prototype.create = function (id, opts, cb) {
         }
     }
     batch(this._db, rows, function (err) { if (cb) cb(err) });
+};
+
+Account.prototype.update = function (id, opts, cb) {
+    var self = this;
+    if (!opts) opts = {};
+    var keys = Object.keys(opts.login || {});
+    var rows = [];
+    each(keys, function (key, _, done) {
+        var lg = self._logins[key];
+
+        var creds = opts.login[key];
+        if (!lg) done('login not registered for type: ' + key);
+
+        lg.update(id, creds, function(err, updatedLoginRows) {
+            if (err) done(err);
+            else {
+                rows.push.apply(rows, updatedLoginRows)
+                done();
+            }
+        });
+    }, function (err) {
+        if (err) nextErr(cb, err);
+        else batch(self._db, rows, function (err) { if (cb) cb(err) });
+    });
 };
 
 Account.prototype.get = function (id, cb) {

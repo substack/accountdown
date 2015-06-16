@@ -6,6 +6,7 @@
   "dependencies": {
     "bytewise": "~0.7.0",
     "defined": "~0.0.0",
+    "each-async": "^1.1.1",
     "isarray": "~0.0.1",
     "level-create-batch": "^1.0.1",
     "levelup-defaults": "^1.0.2",
