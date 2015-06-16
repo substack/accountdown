@@ -10,7 +10,7 @@ manage accounts with leveldb
 
 To create a user, we can just do:
 
-``` js
+```js
 var accountdown = require('accountdown');
 var level = require('level');
 var db = level('./users.db');
@@ -38,7 +38,7 @@ likewise if an `id` is unavailable but a username is available.
 
 To verify a credential (in this case, using accountdown-basic):
 
-``` js
+```js
 var accountdown = require('accountdown');
 var level = require('level');
 var db = level('./users.db');
@@ -55,9 +55,34 @@ users.verify('basic', creds, function (err, ok, id) {
 });
 ```
 
+## updating the login plugin's credentials
+
+To update a credential (in this case, updating the password in accountdown-basic):
+
+```js
+var accountdown = require('accountdown');
+var level = require('level');
+var db = level('/tmp/users.db');
+
+var users = accountdown(db, {
+    login: { basic: require('accountdown-basic') }
+});
+
+var existingUsername = 'substack';
+var newPassword = 'new password';
+
+var opts = {
+    login: { basic: { username: existingUsername, password: newPassword } }
+};
+
+users.update('substack', opts, function (err) {
+    if (err) console.error(err)
+});
+```
+
 # methods
 
-``` js
+```js
 var accountdown = require('accountdown')
 ```
 
@@ -87,6 +112,13 @@ associated with challenge credentials, `cred` is defined.
 
 Return a readable object stream of row objects with `row.key` set to the user id
 of each user in the account system.
+
+## users.update(id, opts, cb)
+
+Update all login types under `opts.login` for a username `id` according to the
+credentials stored under `opts.login[type]`.
+
+`cb(err)` fires with any errors.
 
 ## users.get(id, cb)
 
